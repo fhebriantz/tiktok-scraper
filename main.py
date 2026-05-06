@@ -12,13 +12,28 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-# Windows: force stdout/stderr ke UTF-8 supaya emoji & Rich markup gak crash
-# di console default (cp1252) seperti legacy cmd.exe / PowerShell.
+# Windows: force stdout/stderr ke UTF-8 + enable VT100 (ANSI) console mode
+# supaya emoji, Rich markup, dan OSC 8 hyperlink ter-render benar
+# (bukan muncul sebagai escape codes mentah).
 if sys.platform == "win32":
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
     except (AttributeError, ValueError):
+        pass
+    try:
+        # Enable ENABLE_VIRTUAL_TERMINAL_PROCESSING (0x0004) supaya ANSI
+        # escape sequences (warna, bold, hyperlink) ke-proses oleh console.
+        # Tersedia sejak Windows 10 build 14393 (Anniversary Update, 2016).
+        import ctypes
+
+        _kernel32 = ctypes.windll.kernel32
+        for _handle_id in (-11, -12):  # STD_OUTPUT_HANDLE, STD_ERROR_HANDLE
+            _handle = _kernel32.GetStdHandle(_handle_id)
+            _mode = ctypes.c_uint32()
+            if _kernel32.GetConsoleMode(_handle, ctypes.byref(_mode)):
+                _kernel32.SetConsoleMode(_handle, _mode.value | 0x0004)
+    except Exception:
         pass
 
 from dotenv import load_dotenv

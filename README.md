@@ -39,7 +39,9 @@ Hasil ditampilkan rapi di terminal (pakai [Rich](https://github.com/Textualize/r
 - Browser Chromium (di-install otomatis lewat Playwright)
 - Akun TikTok aktif untuk ambil cookie `msToken`
 - OS: **Linux**, **macOS**, atau **Windows**
-  - Di Windows, **disarankan pakai Windows Terminal atau PowerShell** (bukan legacy `cmd.exe`) supaya hyperlink `▶ buka video` clickable & emoji di hashtag ke-render dengan benar.
+  - Di Windows, **disarankan pakai Windows Terminal atau VS Code Terminal** (bukan legacy `cmd.exe` warisan).
+  - Script auto-enable ANSI/VT100 mode di Windows 10+ supaya hyperlink `▶ buka video` clickable & emoji ke-render benar.
+  - Kalau masih ada karakter aneh (`\x1b[1m`), berarti terminal-nya **Windows lama (<10)** atau **PowerShell ISE** — install [Windows Terminal](https://aka.ms/terminal) gratis dari Microsoft Store.
 
 ## Cara Pakai
 

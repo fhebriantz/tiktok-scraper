@@ -11,6 +11,17 @@ if sys.platform == "win32":
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
     except (AttributeError, ValueError):
         pass
+    try:
+        import ctypes
+
+        _kernel32 = ctypes.windll.kernel32
+        for _handle_id in (-11, -12):
+            _handle = _kernel32.GetStdHandle(_handle_id)
+            _mode = ctypes.c_uint32()
+            if _kernel32.GetConsoleMode(_handle, ctypes.byref(_mode)):
+                _kernel32.SetConsoleMode(_handle, _mode.value | 0x0004)
+    except Exception:
+        pass
 
 from rich import box
 from rich.console import Console
