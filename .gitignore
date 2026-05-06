@@ -1,0 +1,12 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+trending_output.json
+trending_following_output.json
+following_list.txt
+username_list.txt
+batch_results.json
+ranking_output.json
+.claude/
