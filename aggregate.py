@@ -147,6 +147,24 @@ def main():
             f"{len(sorted_errored)} errored[/green]"
         )
 
+    # ===== Export top N video links ke output_link.txt =====
+    console.print()
+    total_posters = len(user_stats)
+    console.print(f"[dim]Total user posting: {total_posters}[/dim]")
+    raw = input(f"Export top berapa link ke output_link.txt? [{total_posters}]: ").strip()
+    try:
+        top_n = int(raw) if raw else total_posters
+        if top_n <= 0:
+            raise ValueError
+    except ValueError:
+        console.print("[yellow]Input tidak valid, pakai default (semua).[/yellow]")
+        top_n = total_posters
+
+    top_n = min(top_n, total_posters)
+    links = [u["best_url"] for u in user_stats[:top_n] if u.get("best_url")]
+    Path("output_link.txt").write_text("\n".join(links) + "\n", encoding="utf-8")
+    console.print(f"[green]✓ {len(links)} link disimpan ke output_link.txt[/green]")
+
 
 if __name__ == "__main__":
     main()
