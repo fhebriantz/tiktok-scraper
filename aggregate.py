@@ -148,12 +148,23 @@ def main():
         )
 
     # ===== Export top N video links ke output_link.txt =====
-    # Top N video absolut (semua video sorted desc by views).
+    # Top N video sorted desc by views, dengan cap 3 per user supaya 1 user
+    # prolific gak dominasi list link.
+    MAX_PER_USER = 3
     all_videos_sorted = sorted(all_videos, key=lambda v: v.get("plays", 0) or 0, reverse=True)
-    total_videos = len(all_videos_sorted)
+    user_count: dict[str, int] = defaultdict(int)
+    capped_videos = []
+    for v in all_videos_sorted:
+        un = v.get("username", "")
+        if user_count[un] >= MAX_PER_USER:
+            continue
+        capped_videos.append(v)
+        user_count[un] += 1
+
+    total_videos = len(capped_videos)
     if total_videos > 0:
         console.print()
-        console.print(f"[dim]Total video di-track: {total_videos} (sort by views)[/dim]")
+        console.print(f"[dim]Total video tersedia: {total_videos} (max {MAX_PER_USER}/user, sort by views)[/dim]")
         raw = input(f"Export top berapa link video ke output_link.txt? [{total_videos}]: ").strip()
         try:
             top_n = int(raw) if raw else total_videos
@@ -164,7 +175,7 @@ def main():
             top_n = total_videos
         top_n = min(top_n, total_videos)
 
-        links = [v.get("url") for v in all_videos_sorted[:top_n] if v.get("url")]
+        links = [v.get("url") for v in capped_videos[:top_n] if v.get("url")]
         Path("output_link.txt").write_text("\n".join(links) + "\n", encoding="utf-8")
         console.print(f"[green]✓ {len(links)} link disimpan ke output_link.txt[/green]")
 
