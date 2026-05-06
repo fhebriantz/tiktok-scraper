@@ -148,22 +148,25 @@ def main():
         )
 
     # ===== Export top N video links ke output_link.txt =====
-    console.print()
-    total_posters = len(user_stats)
-    console.print(f"[dim]Total user posting: {total_posters}[/dim]")
-    raw = input(f"Export top berapa link ke output_link.txt? [{total_posters}]: ").strip()
-    try:
-        top_n = int(raw) if raw else total_posters
-        if top_n <= 0:
-            raise ValueError
-    except ValueError:
-        console.print("[yellow]Input tidak valid, pakai default (semua).[/yellow]")
-        top_n = total_posters
+    # Top N video absolut (semua video sorted desc by views).
+    all_videos_sorted = sorted(all_videos, key=lambda v: v.get("plays", 0) or 0, reverse=True)
+    total_videos = len(all_videos_sorted)
+    if total_videos > 0:
+        console.print()
+        console.print(f"[dim]Total video di-track: {total_videos} (sort by views)[/dim]")
+        raw = input(f"Export top berapa link video ke output_link.txt? [{total_videos}]: ").strip()
+        try:
+            top_n = int(raw) if raw else total_videos
+            if top_n <= 0:
+                raise ValueError
+        except ValueError:
+            console.print("[yellow]Input tidak valid, pakai default (semua).[/yellow]")
+            top_n = total_videos
+        top_n = min(top_n, total_videos)
 
-    top_n = min(top_n, total_posters)
-    links = [u["best_url"] for u in user_stats[:top_n] if u.get("best_url")]
-    Path("output_link.txt").write_text("\n".join(links) + "\n", encoding="utf-8")
-    console.print(f"[green]✓ {len(links)} link disimpan ke output_link.txt[/green]")
+        links = [v.get("url") for v in all_videos_sorted[:top_n] if v.get("url")]
+        Path("output_link.txt").write_text("\n".join(links) + "\n", encoding="utf-8")
+        console.print(f"[green]✓ {len(links)} link disimpan ke output_link.txt[/green]")
 
 
 if __name__ == "__main__":

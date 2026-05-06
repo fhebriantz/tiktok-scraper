@@ -630,33 +630,24 @@ def render_videos(
     console.print()
     console.print(f"[green]✓ Hasil lengkap disimpan ke {out_path}[/green]")
 
-    # ===== Export top N video links per user ke output_link.txt =====
-    # Ambil video terbaik per user (sort sesuai metric yang dipilih), lalu
-    # tampilkan top N user → tulis URL satu per baris.
-    user_best: dict[str, dict] = {}
-    for v in sorted_videos:
-        un = v.get("username", "")
-        if not un:
-            continue
-        if un not in user_best:
-            user_best[un] = v  # sorted_videos udah desc, jadi yang pertama = best
-
-    ranked_user_videos = list(user_best.values())
-    total_users = len(ranked_user_videos)
-    if total_users > 0:
+    # ===== Export top N video links ke output_link.txt =====
+    # Ambil top N video absolut (semua video sorted desc by metric pilihan).
+    # Multiple video dari user yang sama OK — yang dipilih adalah video terbaik.
+    total_videos = len(sorted_videos)
+    if total_videos > 0:
         console.print()
-        console.print(f"[dim]Total user posting: {total_users}[/dim]")
-        raw = input(f"Export top berapa link ke output_link.txt? [{total_users}]: ").strip()
+        console.print(f"[dim]Total video di-track: {total_videos} (sort by {sort_label})[/dim]")
+        raw = input(f"Export top berapa link video ke output_link.txt? [{total_videos}]: ").strip()
         try:
-            top_n_links = int(raw) if raw else total_users
+            top_n_links = int(raw) if raw else total_videos
             if top_n_links <= 0:
                 raise ValueError
         except ValueError:
             console.print("[yellow]Input tidak valid, pakai default (semua).[/yellow]")
-            top_n_links = total_users
-        top_n_links = min(top_n_links, total_users)
+            top_n_links = total_videos
+        top_n_links = min(top_n_links, total_videos)
 
-        links = [v.get("url") for v in ranked_user_videos[:top_n_links] if v.get("url")]
+        links = [v.get("url") for v in sorted_videos[:top_n_links] if v.get("url")]
         Path("output_link.txt").write_text("\n".join(links) + "\n", encoding="utf-8")
         console.print(f"[green]✓ {len(links)} link disimpan ke output_link.txt[/green]")
 
