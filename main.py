@@ -22,11 +22,16 @@ if sys.platform == "win32":
         pass
 
 from dotenv import load_dotenv
+from rich import box
 from rich.console import Console
 from rich.table import Table
 from TikTokApi import TikTokApi
 
 load_dotenv()
+
+# Box style: ASCII di Windows supaya tabel rapi di cmd.exe/PowerShell yang gak
+# render box-drawing unicode dengan baik. Linux/macOS pakai default heavy-head.
+TABLE_BOX = box.ASCII if sys.platform == "win32" else box.HEAVY_HEAD
 
 DEFAULT_HASHTAGS = [
     "goyangviral",
@@ -357,7 +362,7 @@ def render(music_stats: dict[str, dict], top_n: int, days_back: int, sort_key: s
         title = m["title"][:60]
         console.rule(f"[bold]#{idx} {title}  •  by {m['author_name']}")
 
-        table = Table(show_header=True, header_style="bold cyan", expand=False)
+        table = Table(show_header=True, header_style="bold cyan", expand=False, box=TABLE_BOX)
         table.add_column("Username", style="bold", no_wrap=True)
         table.add_column("Likes", justify="right", no_wrap=True)
         table.add_column("Views", justify="right", no_wrap=True)
@@ -549,7 +554,7 @@ def render_videos(
         console.print()
         console.rule(f"[bold]TOP {len(top_videos)} POSTERS (max {MAX_POSTS_PER_USER_IN_TOP} per user)")
 
-        table = Table(show_header=True, header_style="bold cyan", expand=False)
+        table = Table(show_header=True, header_style="bold cyan", expand=False, box=TABLE_BOX)
         table.add_column("#", justify="right", no_wrap=True)
         table.add_column("Username", style="bold", no_wrap=True)
         table.add_column("Views", justify="right", no_wrap=True)

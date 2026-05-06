@@ -12,10 +12,12 @@ if sys.platform == "win32":
     except (AttributeError, ValueError):
         pass
 
+from rich import box
 from rich.console import Console
 from rich.table import Table
 
 console = Console(legacy_windows=False)
+TABLE_BOX = box.ASCII if sys.platform == "win32" else box.HEAVY_HEAD
 
 
 def main():
@@ -73,7 +75,7 @@ def main():
     )
     console.print()
 
-    table = Table(show_header=True, header_style="bold cyan", expand=False)
+    table = Table(show_header=True, header_style="bold cyan", expand=False, box=TABLE_BOX)
     table.add_column("#", justify="right", no_wrap=True, min_width=3)
     table.add_column("Username", style="bold", no_wrap=True, min_width=22)
     table.add_column("Best views", justify="right", no_wrap=True, min_width=11)
