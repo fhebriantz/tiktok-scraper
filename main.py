@@ -12,6 +12,15 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+# Windows: force stdout/stderr ke UTF-8 supaya emoji & Rich markup gak crash
+# di console default (cp1252) seperti legacy cmd.exe / PowerShell.
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
 from dotenv import load_dotenv
 from rich.console import Console
 from rich.table import Table
@@ -63,7 +72,7 @@ HEADLESS = os.environ.get("HEADLESS", "false").strip().lower() == "true"
 
 ENV_PATH = Path(".env")
 
-console = Console()
+console = Console(legacy_windows=False)
 
 
 def read_env_value(key: str) -> str:
