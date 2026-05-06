@@ -630,6 +630,36 @@ def render_videos(
     console.print()
     console.print(f"[green]✓ Hasil lengkap disimpan ke {out_path}[/green]")
 
+    # ===== Export top N video links per user ke output_link.txt =====
+    # Ambil video terbaik per user (sort sesuai metric yang dipilih), lalu
+    # tampilkan top N user → tulis URL satu per baris.
+    user_best: dict[str, dict] = {}
+    for v in sorted_videos:
+        un = v.get("username", "")
+        if not un:
+            continue
+        if un not in user_best:
+            user_best[un] = v  # sorted_videos udah desc, jadi yang pertama = best
+
+    ranked_user_videos = list(user_best.values())
+    total_users = len(ranked_user_videos)
+    if total_users > 0:
+        console.print()
+        console.print(f"[dim]Total user posting: {total_users}[/dim]")
+        raw = input(f"Export top berapa link ke output_link.txt? [{total_users}]: ").strip()
+        try:
+            top_n_links = int(raw) if raw else total_users
+            if top_n_links <= 0:
+                raise ValueError
+        except ValueError:
+            console.print("[yellow]Input tidak valid, pakai default (semua).[/yellow]")
+            top_n_links = total_users
+        top_n_links = min(top_n_links, total_users)
+
+        links = [v.get("url") for v in ranked_user_videos[:top_n_links] if v.get("url")]
+        Path("output_link.txt").write_text("\n".join(links) + "\n", encoding="utf-8")
+        console.print(f"[green]✓ {len(links)} link disimpan ke output_link.txt[/green]")
+
 
 async def main() -> None:
     token = os.environ.get("MS_TOKEN") or read_env_value("MS_TOKEN")
