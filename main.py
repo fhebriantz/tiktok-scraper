@@ -630,32 +630,17 @@ def render_videos(
     console.print()
     console.print(f"[green]✓ Hasil lengkap disimpan ke {out_path}[/green]")
 
-    # ===== Export top N video links ke output_link.txt =====
-    # Top N video sorted desc by metric pilihan, dengan cap MAX_POSTS_PER_USER_IN_TOP
-    # per user (sama kayak tabel) supaya 1 user prolific gak dominasi list link.
-    capped_videos = _pick_top_with_user_cap(
-        sorted_videos, len(sorted_videos), MAX_POSTS_PER_USER_IN_TOP
-    )
-    total_videos = len(capped_videos)
-    if total_videos > 0:
+    # ===== Export link ke output_link.txt =====
+    # Pakai top_videos yang sama dengan tabel di atas — jumlah & urutannya
+    # persis sama, jadi user gak bingung antara tampilan terminal & file output.
+    links = [v.get("url") for v in top_videos if v.get("url")]
+    if links:
+        Path("output_link.txt").write_text("\n".join(links) + "\n", encoding="utf-8")
         console.print()
         console.print(
-            f"[dim]Total video tersedia: {total_videos} (max {MAX_POSTS_PER_USER_IN_TOP}/user, "
-            f"sort by {sort_label})[/dim]"
+            f"[green]✓ {len(links)} link disimpan ke output_link.txt "
+            f"(sama dengan tabel di atas)[/green]"
         )
-        raw = input(f"Export top berapa link video ke output_link.txt? [{total_videos}]: ").strip()
-        try:
-            top_n_links = int(raw) if raw else total_videos
-            if top_n_links <= 0:
-                raise ValueError
-        except ValueError:
-            console.print("[yellow]Input tidak valid, pakai default (semua).[/yellow]")
-            top_n_links = total_videos
-        top_n_links = min(top_n_links, total_videos)
-
-        links = [v.get("url") for v in capped_videos[:top_n_links] if v.get("url")]
-        Path("output_link.txt").write_text("\n".join(links) + "\n", encoding="utf-8")
-        console.print(f"[green]✓ {len(links)} link disimpan ke output_link.txt[/green]")
 
 
 async def main() -> None:
